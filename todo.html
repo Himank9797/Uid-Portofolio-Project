@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>To-Do · UI Design Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root{
+      --bg-base:#0d1117;--bg-surface:#161b27;--bg-card:#1a2133;--bg-input:#121826;
+      --border:rgba(255,255,255,.07);--accent:#4a90e2;--accent-light:#6aa8f0;
+      --accent-dark:#2d6ebf;--accent-glow:rgba(74,144,226,.25);
+      --green:#3fb950;--red:#f85149;
+      --text-primary:#e6edf3;--text-secondary:#8b949e;--text-muted:#566580;
+      --radius-md:12px;--radius-lg:18px;--radius-full:9999px;--ease:cubic-bezier(.4,0,.2,1);
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'DM Sans',sans-serif;background:var(--bg-base);color:var(--text-primary);min-height:100vh;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased}
+
+    /* NAV */
+    .navbar{display:flex;align-items:center;justify-content:space-between;height:50px;padding:0 2rem;background:var(--bg-surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+    .nav-brand{display:flex;align-items:center;gap:.5rem;font-family:'Syne',sans-serif;font-weight:700;font-size:.85rem;letter-spacing:.04em;text-transform:uppercase}
+    .brand-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent-glow)}
+    .nav-links{display:flex;list-style:none}
+    .nav-link{display:inline-block;padding:6px 14px;font-size:.8rem;font-weight:500;color:var(--text-secondary);text-decoration:none;border-radius:6px;transition:color 200ms,background 200ms}
+    .nav-link:hover{color:var(--text-primary);background:rgba(255,255,255,.05)}
+    .nav-link.active{color:var(--accent-light);background:rgba(74,144,226,.12)}
+
+    /* LAYOUT */
+    main{flex:1;display:flex;flex-direction:column;align-items:center;padding:2rem 1rem}
+    .todo-wrap{width:100%;max-width:560px;display:flex;flex-direction:column;gap:1.5rem;animation:fadeUp .45s var(--ease) both}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+
+    /* HEADER */
+    .page-header{display:flex;flex-direction:column;gap:.2rem}
+    .page-title{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800}
+    .page-sub{font-size:.8rem;color:var(--text-muted)}
+
+    /* INPUT ROW */
+    .add-row{display:flex;gap:.65rem}
+    .add-input{flex:1;padding:11px 14px;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius-md);color:var(--text-primary);font-family:'DM Sans',sans-serif;font-size:.875rem;outline:none;transition:border-color 200ms,box-shadow 200ms}
+    .add-input::placeholder{color:var(--text-muted)}
+    .add-input:focus{border-color:rgba(74,144,226,.6);box-shadow:0 0 0 3px var(--accent-glow)}
+    .add-btn{padding:11px 20px;background:var(--accent);border:none;border-radius:var(--radius-md);color:#fff;font-family:'Syne',sans-serif;font-size:.85rem;font-weight:600;cursor:pointer;white-space:nowrap;transition:background 200ms,transform 200ms}
+    .add-btn:hover{background:var(--accent-dark);transform:translateY(-1px)}
+    .add-btn:active{transform:none}
+
+    /* FILTERS */
+    .filters{display:flex;gap:.4rem;flex-wrap:wrap}
+    .filter-btn{padding:5px 16px;border-radius:var(--radius-full);font-size:.75rem;font-weight:600;border:1px solid var(--border);background:transparent;color:var(--text-muted);cursor:pointer;transition:background 180ms,border-color 180ms,color 180ms;letter-spacing:.04em}
+    .filter-btn:hover{background:rgba(255,255,255,.04);color:var(--text-primary)}
+    .filter-btn.active{background:rgba(74,144,226,.15);border-color:rgba(74,144,226,.4);color:var(--accent-light)}
+
+    /* TASK LIST */
+    .task-list{display:flex;flex-direction:column;gap:.5rem;min-height:60px}
+    .task-item{display:flex;align-items:center;gap:.75rem;padding:12px 14px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);transition:border-color 200ms,opacity 200ms,transform 200ms;animation:slideIn .25s var(--ease)}
+    @keyframes slideIn{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
+    .task-item:hover{border-color:rgba(255,255,255,.12)}
+    .task-item.done{opacity:.55}
+    .task-item.done .task-text{text-decoration:line-through;color:var(--text-muted)}
+
+    /* Checkbox */
+    .task-check{width:18px;height:18px;border-radius:50%;border:2px solid var(--border);background:transparent;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:background 200ms,border-color 200ms}
+    .task-check.checked{background:var(--green);border-color:var(--green)}
+    .task-check.checked::after{content:'✓';font-size:.65rem;color:#fff;font-weight:700}
+
+    .task-text{flex:1;font-size:.875rem;word-break:break-word;transition:color 200ms}
+    .task-priority{padding:2px 8px;border-radius:var(--radius-full);font-size:.65rem;font-weight:600;flex-shrink:0}
+    .priority-high{background:rgba(248,81,73,.12);color:var(--red);border:1px solid rgba(248,81,73,.25)}
+    .priority-med{background:rgba(210,153,34,.12);color:#d29922;border:1px solid rgba(210,153,34,.25)}
+    .priority-low{background:rgba(63,185,80,.1);color:var(--green);border:1px solid rgba(63,185,80,.2)}
+
+    .task-del{background:transparent;border:none;color:var(--text-muted);cursor:pointer;font-size:.95rem;padding:2px 4px;border-radius:4px;transition:color 180ms,background 180ms;flex-shrink:0;line-height:1}
+    .task-del:hover{color:var(--red);background:rgba(248,81,73,.1)}
+
+    /* STATS BAR */
+    .stats-bar{display:flex;align-items:center;justify-content:space-between;font-size:.75rem;color:var(--text-muted)}
+    .clear-btn{background:transparent;border:none;color:var(--text-muted);cursor:pointer;font-size:.75rem;font-family:'DM Sans',sans-serif;transition:color 180ms}
+    .clear-btn:hover{color:var(--red)}
+
+    /* EMPTY STATE */
+    .empty-state{text-align:center;padding:2.5rem 1rem;color:var(--text-muted);font-size:.85rem}
+    .empty-icon{font-size:2.5rem;margin-bottom:.5rem;display:block}
+
+    footer{padding:.5rem 2rem;border-top:1px solid var(--border);text-align:center;font-size:.72rem;color:var(--text-muted)}
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-brand"><span class="brand-dot"></span><span>UI Design Lab</span></div>
+    <ul class="nav-links">
+      <li><a href="index.html"     class="nav-link">Home</a></li>
+      <li><a href="portfolio.html" class="nav-link">Portfolio</a></li>
+      <li><a href="todo.html"      class="nav-link active">To-Do</a></li>
+      <li><a href="quiz.html"      class="nav-link">Quiz</a></li>
+      <li><a href="ecommerce.html" class="nav-link">E-Commerce</a></li>
+      <li><a href="settings.html"  class="nav-link">Settings</a></li>
+    </ul>
+  </nav>
+
+  <main>
+    <div class="todo-wrap">
+      <div class="page-header">
+        <h1 class="page-title">📋 To-Do List</h1>
+        <p class="page-sub">Stay organised — check off what you finish.</p>
+      </div>
+
+      <!-- Add task row -->
+      <div class="add-row">
+        <input type="text" id="taskInput" class="add-input" placeholder="Add a new task…" maxlength="120" />
+        <button class="add-btn" id="addBtn">+ Add</button>
+      </div>
+
+      <!-- Filters -->
+      <div class="filters">
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="active">Active</button>
+        <button class="filter-btn" data-filter="done">Completed</button>
+        <button class="filter-btn" data-filter="high">🔴 High</button>
+        <button class="filter-btn" data-filter="med">🟡 Medium</button>
+        <button class="filter-btn" data-filter="low">🟢 Low</button>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-bar">
+        <span id="statsText">0 tasks</span>
+        <button class="clear-btn" id="clearDoneBtn">Clear completed</button>
+      </div>
+
+      <!-- Task list -->
+      <div class="task-list" id="taskList">
+        <div class="empty-state" id="emptyState">
+          <span class="empty-icon">✅</span>
+          Add your first task above!
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>To-Do Window · <span id="dims"></span> · todo.html</footer>
+
+  <script>
+    // Priorities cycling: new task starts as 'med', user can't pick priority in this simple UI
+    // We'll assign random on add for demo. In real app, you'd add a selector.
+    const PRIORITIES = ['high','med','low'];
+    let tasks = JSON.parse(localStorage.getItem('uidl-tasks') || '[]');
+    let filter = 'all';
+
+    const taskInput  = document.getElementById('taskInput');
+    const addBtn     = document.getElementById('addBtn');
+    const taskList   = document.getElementById('taskList');
+    const statsText  = document.getElementById('statsText');
+    const clearDone  = document.getElementById('clearDoneBtn');
+    const emptyState = document.getElementById('emptyState');
+
+    function save(){ localStorage.setItem('uidl-tasks', JSON.stringify(tasks)); }
+
+    function addTask() {
+      const text = taskInput.value.trim();
+      if (!text) return;
+      const prios = ['high','med','low'];
+      const task = { id: Date.now(), text, done: false, priority: prios[tasks.length % 3] };
+      tasks.unshift(task);
+      save(); render();
+      taskInput.value = '';
+      taskInput.focus();
+    }
+
+    addBtn.addEventListener('click', addTask);
+    taskInput.addEventListener('keydown', e => { if(e.key==='Enter') addTask(); });
+
+    // Filter buttons
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        filter = btn.dataset.filter;
+        render();
+      });
+    });
+
+    clearDone.addEventListener('click', () => {
+      tasks = tasks.filter(t => !t.done);
+      save(); render();
+    });
+
+    function getVisible() {
+      if (filter === 'all')    return tasks;
+      if (filter === 'active') return tasks.filter(t => !t.done);
+      if (filter === 'done')   return tasks.filter(t => t.done);
+      return tasks.filter(t => t.priority === filter);
+    }
+
+    function render() {
+      const visible = getVisible();
+      const done = tasks.filter(t => t.done).length;
+      statsText.textContent = `${tasks.length} task${tasks.length!==1?'s':''} · ${done} done`;
+
+      taskList.innerHTML = '';
+      if (!visible.length) {
+        taskList.appendChild(emptyState);
+        emptyState.style.display = 'block';
+        return;
+      }
+      emptyState.style.display = 'none';
+
+      visible.forEach(task => {
+        const item = document.createElement('div');
+        item.className = 'task-item' + (task.done ? ' done' : '');
+
+        const chk = document.createElement('div');
+        chk.className = 'task-check' + (task.done ? ' checked' : '');
+        chk.addEventListener('click', () => {
+          task.done = !task.done; save(); render();
+        });
+
+        const txt = document.createElement('span');
+        txt.className = 'task-text';
+        txt.textContent = task.text;
+
+        const prio = document.createElement('span');
+        prio.className = `task-priority priority-${task.priority}`;
+        prio.textContent = task.priority.charAt(0).toUpperCase() + task.priority.slice(1);
+
+        const del = document.createElement('button');
+        del.className = 'task-del';
+        del.textContent = '✕';
+        del.title = 'Delete task';
+        del.addEventListener('click', () => {
+          tasks = tasks.filter(t => t.id !== task.id); save(); render();
+        });
+
+        item.append(chk, txt, prio, del);
+        taskList.appendChild(item);
+      });
+    }
+
+    render();
+    const d = document.getElementById('dims');
+    function upd(){ d.textContent=`${window.innerWidth} × ${window.innerHeight} px`; }
+    upd(); window.addEventListener('resize', upd);
+  </script>
+</body>
+</html>

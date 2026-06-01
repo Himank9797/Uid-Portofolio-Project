@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UI Design Lab · Main Window</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-base:#0d1117; --bg-surface:#161b27; --bg-card:#1a2133;
+      --border:rgba(255,255,255,0.07); --accent:#4a90e2;
+      --accent-light:#6aa8f0; --accent-dark:#2d6ebf;
+      --accent-glow:rgba(74,144,226,0.25);
+      --text-primary:#e6edf3; --text-secondary:#8b949e; --text-muted:#566580;
+      --radius-sm:6px; --radius-md:12px; --radius-lg:18px; --radius-full:9999px;
+      --ease:cubic-bezier(0.4,0,0.2,1);
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'DM Sans',sans-serif;background:var(--bg-base);color:var(--text-primary);min-height:100vh;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased}
+
+    /* NAV */
+    .navbar{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;height:50px;padding:0 2rem;background:var(--bg-surface);border-bottom:1px solid var(--border)}
+    .nav-brand{display:flex;align-items:center;gap:.5rem;font-family:'Syne',sans-serif;font-weight:700;font-size:.85rem;letter-spacing:.04em;text-transform:uppercase;color:var(--text-primary)}
+    .brand-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent-glow)}
+    .nav-links{display:flex;list-style:none}
+    .nav-link{display:inline-block;padding:6px 14px;font-size:.8rem;font-weight:500;color:var(--text-secondary);text-decoration:none;border-radius:var(--radius-sm);transition:color 200ms var(--ease),background 200ms var(--ease)}
+    .nav-link:hover{color:var(--text-primary);background:rgba(255,255,255,.05)}
+    .nav-link.active{color:var(--accent-light);background:rgba(74,144,226,.12)}
+
+    /* HERO */
+    main{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:2rem;gap:1.5rem}
+    .hero-label{font-size:.72rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--text-muted)}
+    .hero-title{font-family:'Syne',sans-serif;font-size:2.2rem;font-weight:800;line-height:1.15;color:var(--text-primary)}
+    .hero-subtitle{font-size:.9rem;color:var(--text-secondary);max-width:380px}
+    .hero-ipc{font-size:.78rem;color:#3fb950;font-weight:500;display:flex;align-items:center;gap:.4rem}
+    .ipc-dot{width:7px;height:7px;border-radius:50%;background:#3fb950;box-shadow:0 0 8px #3fb950;animation:pulse 2s ease-in-out infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+    .btn-row{display:flex;gap:1rem;flex-wrap:wrap;justify-content:center}
+    .hero-btn{display:inline-flex;align-items:center;gap:.5rem;padding:12px 28px;border:none;border-radius:var(--radius-md);font-family:'Syne',sans-serif;font-size:.875rem;font-weight:600;letter-spacing:.04em;cursor:pointer;text-decoration:none;transition:transform 200ms var(--ease),box-shadow 200ms var(--ease),filter 200ms var(--ease)}
+    .hero-btn:hover{transform:translateY(-2px);filter:brightness(1.1)}
+    .btn-blue{background:var(--accent);color:#fff;box-shadow:0 4px 16px rgba(74,144,226,.3)}
+    .btn-blue:hover{box-shadow:0 6px 24px rgba(74,144,226,.45)}
+    .btn-purple{background:#7c3aed;color:#fff;box-shadow:0 4px 16px rgba(124,58,237,.3)}
+    .btn-purple:hover{box-shadow:0 6px 24px rgba(124,58,237,.45)}
+    .win-info{font-size:.72rem;color:var(--text-muted);letter-spacing:.03em}
+
+    /* QUICK NAV CARDS */
+    .quick-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.75rem;max-width:700px;width:100%}
+    .q-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:.9rem 1rem;text-decoration:none;display:flex;flex-direction:column;gap:.3rem;transition:border-color 200ms var(--ease),transform 200ms var(--ease),box-shadow 200ms var(--ease)}
+    .q-card:hover{border-color:rgba(74,144,226,.35);transform:translateY(-2px);box-shadow:0 4px 16px rgba(74,144,226,.1)}
+    .q-icon{font-size:1.3rem}
+    .q-label{font-size:.78rem;font-weight:600;color:var(--text-primary)}
+    .q-desc{font-size:.68rem;color:var(--text-muted)}
+
+    @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+    main>*{animation:fadeUp .5s var(--ease) both}
+    main>*:nth-child(1){animation-delay:.05s}
+    main>*:nth-child(2){animation-delay:.12s}
+    main>*:nth-child(3){animation-delay:.18s}
+    main>*:nth-child(4){animation-delay:.24s}
+    main>*:nth-child(5){animation-delay:.3s}
+    main>*:nth-child(6){animation-delay:.36s}
+    footer{padding:.5rem 2rem;border-top:1px solid var(--border);text-align:center;font-size:.72rem;color:var(--text-muted)}
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-brand"><span class="brand-dot"></span><span>UI Design Lab</span></div>
+    <ul class="nav-links">
+      <li><a href="index.html"      class="nav-link active">Home</a></li>
+      <li><a href="portfolio.html"  class="nav-link">Portfolio</a></li>
+      <li><a href="todo.html"       class="nav-link">To-Do</a></li>
+      <li><a href="quiz.html"       class="nav-link">Quiz</a></li>
+      <li><a href="ecommerce.html"  class="nav-link">E-Commerce</a></li>
+      <li><a href="settings.html"   class="nav-link">Settings</a></li>
+    </ul>
+  </nav>
+
+  <main>
+    <p class="hero-label">⚡ UI Design Lab</p>
+    <h1 class="hero-title">Electron Multi-Window<br/>Application</h1>
+    <p class="hero-subtitle">A modular desktop app featuring Portfolio, Quiz, To-Do, E-Commerce, and Settings — all in one place.</p>
+
+    <div class="btn-row">
+      <a href="portfolio.html" class="hero-btn btn-blue">Open Portfolio</a>
+      <a href="quiz.html"      class="hero-btn btn-purple">Open Quiz</a>
+    </div>
+
+    <div class="hero-ipc"><span class="ipc-dot"></span> IPC Channel Ready</div>
+
+    <div class="quick-grid">
+      <a href="portfolio.html" class="q-card">
+        <span class="q-icon">👤</span>
+        <span class="q-label">Portfolio</span>
+        <span class="q-desc">Profile & contact</span>
+      </a>
+      <a href="todo.html" class="q-card">
+        <span class="q-icon">✅</span>
+        <span class="q-label">To-Do</span>
+        <span class="q-desc">Task manager</span>
+      </a>
+      <a href="quiz.html" class="q-card">
+        <span class="q-icon">🧠</span>
+        <span class="q-label">Quiz</span>
+        <span class="q-desc">Test your skills</span>
+      </a>
+      <a href="ecommerce.html" class="q-card">
+        <span class="q-icon">🛒</span>
+        <span class="q-label">Shop</span>
+        <span class="q-desc">Browse products</span>
+      </a>
+      <a href="settings.html" class="q-card">
+        <span class="q-icon">⚙️</span>
+        <span class="q-label">Settings</span>
+        <span class="q-desc">App preferences</span>
+      </a>
+    </div>
+
+    <p class="win-info">Main Window · <span id="dims"></span> · index.html</p>
+  </main>
+
+  <footer>UI Design Lab · Electron App</footer>
+
+  <script>
+    const d = document.getElementById('dims');
+    function upd(){ d.textContent = `${window.innerWidth} × ${window.innerHeight} px`; }
+    upd(); window.addEventListener('resize', upd);
+  </script>
+</body>
+</html>

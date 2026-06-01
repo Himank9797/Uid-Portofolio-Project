@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Settings · UI Design Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root{
+      --bg-base:#0d1117;--bg-surface:#161b27;--bg-card:#1a2133;--bg-input:#121826;
+      --border:rgba(255,255,255,.07);--accent:#4a90e2;--accent-light:#6aa8f0;
+      --accent-dark:#2d6ebf;--accent-glow:rgba(74,144,226,.25);
+      --green:#3fb950;--red:#f85149;
+      --text-primary:#e6edf3;--text-secondary:#8b949e;--text-muted:#566580;
+      --radius-sm:6px;--radius-md:12px;--radius-lg:18px;--radius-full:9999px;--ease:cubic-bezier(.4,0,.2,1);
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'DM Sans',sans-serif;background:var(--bg-base);color:var(--text-primary);min-height:100vh;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased}
+
+    /* NAV */
+    .navbar{display:flex;align-items:center;justify-content:space-between;height:50px;padding:0 2rem;background:var(--bg-surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+    .nav-brand{display:flex;align-items:center;gap:.5rem;font-family:'Syne',sans-serif;font-weight:700;font-size:.85rem;letter-spacing:.04em;text-transform:uppercase}
+    .brand-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent-glow)}
+    .nav-links{display:flex;list-style:none}
+    .nav-link{display:inline-block;padding:6px 14px;font-size:.8rem;font-weight:500;color:var(--text-secondary);text-decoration:none;border-radius:6px;transition:color 200ms,background 200ms}
+    .nav-link:hover{color:var(--text-primary);background:rgba(255,255,255,.05)}
+    .nav-link.active{color:var(--accent-light);background:rgba(74,144,226,.12)}
+
+    /* LAYOUT */
+    main{flex:1;padding:2rem;display:flex;justify-content:center}
+    .settings-wrap{width:100%;max-width:600px;display:flex;flex-direction:column;gap:1.5rem}
+
+    /* PAGE HEADER */
+    .page-header{animation:fadeUp .4s var(--ease) both}
+    .page-title{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800}
+    .page-sub{font-size:.8rem;color:var(--text-muted);margin-top:.2rem}
+
+    /* SECTION CARD */
+    .settings-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;animation:fadeUp .4s var(--ease) both}
+    .settings-card:nth-child(2){animation-delay:.06s}
+    .settings-card:nth-child(3){animation-delay:.1s}
+    .settings-card:nth-child(4){animation-delay:.14s}
+    .settings-card:nth-child(5){animation-delay:.18s}
+
+    @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+    .card-label{padding:.6rem 1.1rem;font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);background:rgba(0,0,0,.15);border-bottom:1px solid var(--border)}
+    .setting-row{display:flex;align-items:center;justify-content:space-between;padding:.85rem 1.1rem;border-bottom:1px solid var(--border);gap:1rem;transition:background 180ms}
+    .setting-row:last-child{border-bottom:none}
+    .setting-row:hover{background:rgba(255,255,255,.02)}
+    .setting-info{display:flex;flex-direction:column;gap:.18rem}
+    .setting-name{font-size:.875rem;font-weight:500;color:var(--text-primary)}
+    .setting-desc{font-size:.75rem;color:var(--text-muted)}
+
+    /* TOGGLE SWITCH */
+    .toggle{position:relative;width:40px;height:22px;flex-shrink:0}
+    .toggle input{opacity:0;width:0;height:0;position:absolute}
+    .toggle-track{display:block;width:40px;height:22px;background:rgba(255,255,255,.1);border-radius:var(--radius-full);cursor:pointer;transition:background 250ms var(--ease);border:1px solid var(--border)}
+    .toggle-thumb{position:absolute;top:3px;left:3px;width:14px;height:14px;background:#fff;border-radius:50%;transition:transform 250ms var(--ease),background 250ms;pointer-events:none}
+    .toggle input:checked ~ .toggle-track{background:var(--accent);border-color:var(--accent)}
+    .toggle input:checked ~ .toggle-thumb{transform:translateX(18px);background:#fff}
+
+    /* SELECT */
+    .setting-select{padding:6px 10px;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-family:'DM Sans',sans-serif;font-size:.8rem;outline:none;cursor:pointer;transition:border-color 200ms}
+    .setting-select:focus{border-color:rgba(74,144,226,.5)}
+
+    /* RANGE SLIDER */
+    .setting-range{-webkit-appearance:none;appearance:none;width:120px;height:4px;background:rgba(255,255,255,.1);border-radius:2px;outline:none;cursor:pointer}
+    .setting-range::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;background:var(--accent);border-radius:50%;cursor:pointer}
+
+    /* COLOR SWATCHES */
+    .swatch-row{display:flex;gap:.4rem}
+    .swatch{width:20px;height:20px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:transform 150ms,border-color 150ms}
+    .swatch:hover{transform:scale(1.15)}
+    .swatch.active{border-color:#fff}
+
+    /* DANGER ZONE */
+    .danger-btn{padding:7px 16px;background:rgba(248,81,73,.1);border:1px solid rgba(248,81,73,.25);border-radius:var(--radius-sm);color:var(--red);font-family:'DM Sans',sans-serif;font-size:.8rem;font-weight:500;cursor:pointer;transition:background 200ms,border-color 200ms}
+    .danger-btn:hover{background:rgba(248,81,73,.18);border-color:rgba(248,81,73,.45)}
+
+    /* APP INFO */
+    .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:0}
+    .info-row{padding:.7rem 1.1rem;border-bottom:1px solid var(--border);display:flex;justify-content:space-between}
+    .info-row:nth-child(odd){border-right:1px solid var(--border)}
+    .info-row:last-child,.info-row:nth-last-child(2){border-bottom:none}
+    .info-key{font-size:.75rem;color:var(--text-muted);font-weight:500}
+    .info-val{font-size:.75rem;color:var(--text-secondary);font-weight:600;text-align:right}
+
+    /* SAVE TOAST */
+    .toast{position:fixed;bottom:1.5rem;right:1.5rem;padding:10px 18px;background:#1e3a2a;border:1px solid rgba(63,185,80,.4);border-radius:var(--radius-md);color:var(--green);font-size:.82rem;font-weight:500;transform:translateY(60px);opacity:0;transition:transform 300ms var(--ease),opacity 300ms;z-index:999}
+    .toast.show{transform:translateY(0);opacity:1}
+
+    footer{padding:.5rem 2rem;border-top:1px solid var(--border);text-align:center;font-size:.72rem;color:var(--text-muted)}
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-brand"><span class="brand-dot"></span><span>UI Design Lab</span></div>
+    <ul class="nav-links">
+      <li><a href="index.html"     class="nav-link">Home</a></li>
+      <li><a href="portfolio.html" class="nav-link">Portfolio</a></li>
+      <li><a href="todo.html"      class="nav-link">To-Do</a></li>
+      <li><a href="quiz.html"      class="nav-link">Quiz</a></li>
+      <li><a href="ecommerce.html" class="nav-link">E-Commerce</a></li>
+      <li><a href="settings.html"  class="nav-link active">Settings</a></li>
+    </ul>
+  </nav>
+
+  <main>
+    <div class="settings-wrap">
+
+      <div class="page-header">
+        <h1 class="page-title">⚙️ Settings</h1>
+        <p class="page-sub">Manage your app preferences and account.</p>
+      </div>
+
+      <!-- APPEARANCE -->
+      <div class="settings-card">
+        <div class="card-label">Appearance</div>
+        <div class="setting-row">
+          <div class="setting-info">
+            <span class="setting-name">Dark Mode</span>
+            <span class="setting-desc">Use dark theme across the app</span>
+          </div>
+          <label class="toggle"><input type="checkbox" id="darkMode" checked><span class="toggle-track"></span><span class="toggle-thumb"></span></label>
+        </div>
+        <div class="setting-row">
+          <div class="setting-info">
+            <span class="setting-name">Accent Color</span>
+            <span class="setting-desc">Primary highlight color</span>
+          </div>
+          <div class="swatch-row" id="swatchRow">
+            <div class="swatch active" style="background:#4a90e2" data-color="#4a90e2"></div>
+            <div class="swatch" style="background:#7c3aed" data-color="#7c3aed"></div>
+            <div class="swatch" style="background:#3fb950" data-color="#3fb950"></div>
+            <div class="swatch" style="background:#d29922" data-color="#d29922"></div>
+            <div class="swatch" style="background:#f85149" data-color="#f85149"></div>
+          </div>
+        </div>
+        <div class="setting-row">
+          <div class="setting-info">
+            <span class="setting-name">Font Size</span>
+            <span class="setting-desc">Base text size: <span id="fontSizeVal">15</span>px</span>
+          </div>
+          <input type="range" class="setting-range" id="fontSize" min="13" max="18" value="15" />
+        </div>
+        <div class="setting-row">
+          <div class="setting-info">
+            <span class="setting-name">Animations</span>
+            <span class="setting-desc">Enable fade and slide animations</span>
+          </div>
+          <label class="toggle"><input type="checkbox" id="animations" checked><span class="toggle-track"></span><span class="toggle-thumb"></span></label>
+        </div>
+      </div>
+
+      <!-- NOTIFICATIONS -->
+      <div class="settings-card">
+        <div class="card-label">Notifications</div>
+        <div class="setting-row">
+          <div class="setting-info">
+            <span class="setting-name">Desktop Notifications</span>
+            <span class="setting-desc">Show system-level alerts</span>
+          </div>
+          <label class="toggle"><input type="checkbox" id="notifDesktop" checked><span class="toggle-track"></span><span class="toggle-thumb"></span></label>
+        </div>
+        <div class="setting-row">
+          <div class="setting-info">
+            <span class="setting-name">Sound Alerts</span>
+            <span class="setting-desc">Play sound on notifications</span>
+          </div>
+          <label class="toggle"><input type="checkbox" id="notifSound"><span class="toggle-track"></span><span class="toggle-thumb"></span></label>
+        </div>
+        <div class="setting-row">
+          <div class="setting-info">
+            <span class="setting-name">Notification Frequency</span>
+            <span class="setting-desc">How often to batch alerts</span>
+          </div>
+          <select class="setting-select" id="notifFreq">
+            <option value="instant">Instant</option>
+            <option value="hourly" selected>Hourly</option>
+            <option value="daily">Daily digest</option>
+            <option value="off">Off</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- PRIVACY -->
+      <div class="settings-card">
+        <div class="card-label">Privacy & Data</div>
+        <div class="setting-row">
+          <div class="setting-info">
+            <span class="setting-name">Analytics</span>
+            <span class="setting-desc">Share anonymous usage data</span>
+          </div>
+          <label class="toggle"><input type="checkbox" id="analytics"><span class="toggle-track"></span><span class="toggle-thumb"></span></label>
+        </div>
+        <div class="setting-row">
+          <div class="setting-info">
+            <span class="setting-name">Auto-save</span>
+            <span class="setting-desc">Automatically save changes</span>
+          </div>
+          <label class="toggle"><input type="checkbox" id="autosave" checked><span class="toggle-track"></span><span class="toggle-thumb"></span></label>
+        </div>
+        <div class="setting-row">
+          <div class="setting-info">
+            <span class="setting-name">Clear All App Data</span>
+            <span class="setting-desc">Wipe To-Do tasks & preferences</span>
+          </div>
+          <button class="danger-btn" id="clearDataBtn">Clear Data</button>
+        </div>
+      </div>
+
+      <!-- APP INFO -->
+      <div class="settings-card">
+        <div class="card-label">About</div>
+        <div class="info-grid">
+          <div class="info-row"><span class="info-key">App</span><span class="info-val">UI Design Lab</span></div>
+          <div class="info-row"><span class="info-key">Version</span><span class="info-val">1.0.0</span></div>
+          <div class="info-row"><span class="info-key">Author</span><span class="info-val">Himank</span></div>
+          <div class="info-row"><span class="info-key">Framework</span><span class="info-val">Electron</span></div>
+          <div class="info-row"><span class="info-key">Platform</span><span class="info-val" id="platform">Web</span></div>
+          <div class="info-row"><span class="info-key">Build</span><span class="info-val">2025</span></div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <footer>Settings Window · <span id="dims"></span> · settings.html</footer>
+  <div class="toast" id="toast">✓ Settings saved</div>
+
+  <script>
+    // ---- Load saved settings ----
+    function loadSettings() {
+      const s = JSON.parse(localStorage.getItem('uidl-settings') || '{}');
+      if (s.darkMode    !== undefined) document.getElementById('darkMode').checked    = s.darkMode;
+      if (s.animations  !== undefined) document.getElementById('animations').checked  = s.animations;
+      if (s.notifDesktop!== undefined) document.getElementById('notifDesktop').checked= s.notifDesktop;
+      if (s.notifSound  !== undefined) document.getElementById('notifSound').checked  = s.notifSound;
+      if (s.analytics   !== undefined) document.getElementById('analytics').checked   = s.analytics;
+      if (s.autosave    !== undefined) document.getElementById('autosave').checked    = s.autosave;
+      if (s.notifFreq)  document.getElementById('notifFreq').value = s.notifFreq;
+      if (s.fontSize) {
+        document.getElementById('fontSize').value = s.fontSize;
+        document.getElementById('fontSizeVal').textContent = s.fontSize;
+        document.body.style.fontSize = s.fontSize + 'px';
+      }
+      if (s.accent) {
+        applyAccent(s.accent);
+        document.querySelectorAll('.swatch').forEach(sw => {
+          sw.classList.toggle('active', sw.dataset.color === s.accent);
+        });
+      }
+    }
+
+    function saveSettings() {
+      const s = {
+        darkMode:     document.getElementById('darkMode').checked,
+        animations:   document.getElementById('animations').checked,
+        notifDesktop: document.getElementById('notifDesktop').checked,
+        notifSound:   document.getElementById('notifSound').checked,
+        analytics:    document.getElementById('analytics').checked,
+        autosave:     document.getElementById('autosave').checked,
+        notifFreq:    document.getElementById('notifFreq').value,
+        fontSize:     document.getElementById('fontSize').value,
+        accent:       document.querySelector('.swatch.active')?.dataset.color || '#4a90e2',
+      };
+      localStorage.setItem('uidl-settings', JSON.stringify(s));
+      showToast();
+    }
+
+    function showToast() {
+      const t = document.getElementById('toast');
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2200);
+    }
+
+    function applyAccent(color) {
+      document.documentElement.style.setProperty('--accent', color);
+      // Compute darker variant
+      document.documentElement.style.setProperty('--accent-light', color);
+    }
+
+    // Accent swatches
+    document.getElementById('swatchRow').addEventListener('click', e => {
+      const sw = e.target.closest('.swatch');
+      if (!sw) return;
+      document.querySelectorAll('.swatch').forEach(s => s.classList.remove('active'));
+      sw.classList.add('active');
+      applyAccent(sw.dataset.color);
+      if (document.getElementById('autosave').checked) saveSettings();
+    });
+
+    // Font size slider
+    document.getElementById('fontSize').addEventListener('input', e => {
+      document.getElementById('fontSizeVal').textContent = e.target.value;
+      document.body.style.fontSize = e.target.value + 'px';
+      if (document.getElementById('autosave').checked) saveSettings();
+    });
+
+    // All toggles + select
+    ['darkMode','animations','notifDesktop','notifSound','analytics','autosave','notifFreq'].forEach(id => {
+      document.getElementById(id)?.addEventListener('change', () => {
+        if (document.getElementById('autosave').checked) saveSettings();
+      });
+    });
+
+    // Manual save on any change (fallback)
+    document.querySelectorAll('input[type="checkbox"], select, input[type="range"]').forEach(el => {
+      el.addEventListener('change', () => {
+        if (document.getElementById('autosave').checked) saveSettings();
+      });
+    });
+
+    // Clear data
+    document.getElementById('clearDataBtn').addEventListener('click', () => {
+      if (confirm('Clear all app data? This includes To-Do tasks and preferences.')) {
+        localStorage.removeItem('uidl-tasks');
+        localStorage.removeItem('uidl-settings');
+        alert('✓ All data cleared.');
+      }
+    });
+
+    // Platform detect
+    document.getElementById('platform').textContent =
+      navigator.userAgent.includes('Electron') ? 'Electron' : 'Browser';
+
+    loadSettings();
+    const d=document.getElementById('dims');
+    function upd(){d.textContent=`${window.innerWidth} × ${window.innerHeight} px`;}
+    upd(); window.addEventListener('resize',upd);
+  </script>
+</body>
+</html>

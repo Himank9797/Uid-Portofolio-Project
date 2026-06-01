@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quiz · UI Design Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root{
+      --bg-base:#0d1117;--bg-surface:#161b27;--bg-card:#1a2133;
+      --border:rgba(255,255,255,.07);--accent:#4a90e2;--accent-light:#6aa8f0;
+      --accent-dark:#2d6ebf;--accent-glow:rgba(74,144,226,.25);
+      --green:#3fb950;--red:#f85149;--purple:#7c3aed;
+      --text-primary:#e6edf3;--text-secondary:#8b949e;--text-muted:#566580;
+      --radius-md:12px;--radius-lg:18px;--radius-full:9999px;
+      --ease:cubic-bezier(.4,0,.2,1);
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'DM Sans',sans-serif;background:var(--bg-base);color:var(--text-primary);min-height:100vh;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased}
+
+    /* NAV */
+    .navbar{display:flex;align-items:center;justify-content:space-between;height:50px;padding:0 2rem;background:var(--bg-surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+    .nav-brand{display:flex;align-items:center;gap:.5rem;font-family:'Syne',sans-serif;font-weight:700;font-size:.85rem;letter-spacing:.04em;text-transform:uppercase}
+    .brand-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent-glow)}
+    .nav-links{display:flex;list-style:none}
+    .nav-link{display:inline-block;padding:6px 14px;font-size:.8rem;font-weight:500;color:var(--text-secondary);text-decoration:none;border-radius:6px;transition:color 200ms,background 200ms}
+    .nav-link:hover{color:var(--text-primary);background:rgba(255,255,255,.05)}
+    .nav-link.active{color:var(--accent-light);background:rgba(74,144,226,.12)}
+
+    /* LAYOUT */
+    main{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem 1rem}
+    .quiz-wrap{width:100%;max-width:520px;display:flex;flex-direction:column;gap:1.25rem}
+
+    /* PROGRESS */
+    .progress-bar-track{width:100%;height:6px;background:rgba(255,255,255,.07);border-radius:var(--radius-full);overflow:hidden}
+    .progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent-dark),var(--accent-light));border-radius:var(--radius-full);transition:width .4s var(--ease)}
+    .progress-label{font-size:.75rem;color:var(--text-muted);text-align:center;letter-spacing:.04em}
+
+    /* QUESTION CARD */
+    .question-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:2rem 1.75rem;min-height:90px;display:flex;align-items:center;justify-content:center}
+    .question-text{font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:600;text-align:center;line-height:1.5;color:var(--text-primary)}
+
+    /* OPTIONS */
+    .options{display:flex;flex-direction:column;gap:.6rem}
+    .option-btn{width:100%;padding:12px 18px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);color:var(--text-secondary);font-family:'DM Sans',sans-serif;font-size:.875rem;font-weight:500;text-align:left;cursor:pointer;transition:background 180ms,border-color 180ms,color 180ms,transform 120ms}
+    .option-btn:hover:not(:disabled){background:rgba(74,144,226,.08);border-color:rgba(74,144,226,.3);color:var(--text-primary);transform:translateX(3px)}
+    .option-btn.selected-correct{background:rgba(63,185,80,.15);border-color:rgba(63,185,80,.5);color:var(--green)}
+    .option-btn.selected-wrong{background:rgba(248,81,73,.12);border-color:rgba(248,81,73,.4);color:var(--red)}
+    .option-btn.reveal-correct{background:rgba(63,185,80,.08);border-color:rgba(63,185,80,.3);color:var(--green)}
+    .option-btn:disabled{cursor:default;transform:none}
+
+    /* BOTTOM ROW */
+    .bottom-row{display:flex;align-items:center;justify-content:space-between}
+    .score-display{font-size:.78rem;color:var(--text-muted);font-weight:500}
+    .next-btn{display:inline-flex;align-items:center;gap:.4rem;padding:10px 24px;background:var(--accent);border:none;border-radius:var(--radius-md);color:#fff;font-family:'Syne',sans-serif;font-size:.85rem;font-weight:600;cursor:pointer;transition:background 200ms,transform 200ms,box-shadow 200ms;letter-spacing:.04em}
+    .next-btn:hover{background:var(--accent-dark);transform:translateY(-1px);box-shadow:0 4px 14px var(--accent-glow)}
+    .next-btn:disabled{opacity:.4;cursor:default;transform:none;box-shadow:none}
+
+    /* RESULTS SCREEN */
+    .results{display:none;flex-direction:column;align-items:center;gap:1.25rem;text-align:center}
+    .results.show{display:flex}
+    .result-emoji{font-size:3.5rem;animation:pop .4s var(--ease)}
+    @keyframes pop{from{transform:scale(.5);opacity:0}to{transform:scale(1);opacity:1}}
+    .result-title{font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800}
+    .result-score{font-size:2.5rem;font-family:'Syne',sans-serif;font-weight:800;color:var(--accent)}
+    .result-msg{font-size:.9rem;color:var(--text-secondary);max-width:320px}
+    .restart-btn{padding:11px 28px;background:var(--accent);border:none;border-radius:var(--radius-md);color:#fff;font-family:'Syne',sans-serif;font-size:.875rem;font-weight:600;cursor:pointer;transition:background 200ms,transform 200ms}
+    .restart-btn:hover{background:var(--accent-dark);transform:translateY(-1px)}
+
+    footer{padding:.5rem 2rem;border-top:1px solid var(--border);text-align:center;font-size:.72rem;color:var(--text-muted)}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+    .quiz-wrap{animation:fadeUp .45s var(--ease) both}
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-brand"><span class="brand-dot"></span><span>UI Design Lab</span></div>
+    <ul class="nav-links">
+      <li><a href="index.html"     class="nav-link">Home</a></li>
+      <li><a href="portfolio.html" class="nav-link">Portfolio</a></li>
+      <li><a href="todo.html"      class="nav-link">To-Do</a></li>
+      <li><a href="quiz.html"      class="nav-link active">Quiz</a></li>
+      <li><a href="ecommerce.html" class="nav-link">E-Commerce</a></li>
+      <li><a href="settings.html"  class="nav-link">Settings</a></li>
+    </ul>
+  </nav>
+
+  <main>
+    <!-- Quiz panel -->
+    <div class="quiz-wrap" id="quizWrap">
+      <div class="progress-bar-track"><div class="progress-bar-fill" id="progressFill" style="width:0%"></div></div>
+      <p class="progress-label" id="progressLabel">Question 1 of 10</p>
+      <div class="question-card"><p class="question-text" id="questionText">Loading…</p></div>
+      <div class="options" id="optionsContainer"></div>
+      <div class="bottom-row">
+        <span class="score-display">Score: <b id="scoreDisplay">0</b></span>
+        <button class="next-btn" id="nextBtn" disabled>Next →</button>
+      </div>
+    </div>
+
+    <!-- Results screen -->
+    <div class="results" id="resultsScreen">
+      <span class="result-emoji" id="resultEmoji">🎉</span>
+      <h2 class="result-title">Quiz Complete!</h2>
+      <p class="result-score" id="resultScore">0/10</p>
+      <p class="result-msg" id="resultMsg"></p>
+      <button class="restart-btn" id="restartBtn">Play Again</button>
+    </div>
+  </main>
+
+  <footer>Quiz Window · <span id="dims"></span> · quiz.html</footer>
+
+  <script>
+    // ---- Questions bank ----
+    const QUESTIONS = [
+      { q:"CSS is used for?", opts:["Styling web pages","Server logic","Database queries","Compiling code"], ans:0 },
+      { q:"Which HTML tag creates a hyperlink?", opts:["<link>","<a>","<href>","<url>"], ans:1 },
+      { q:"What does DOM stand for?", opts:["Document Object Model","Data Object Module","Display Output Mode","Dynamic Object Manager"], ans:0 },
+      { q:"Which language runs inside the browser?", opts:["Python","Java","JavaScript","C++"], ans:2 },
+      { q:"What does HTTP stand for?", opts:["HyperText Transfer Protocol","High Text Transfer Process","Hybrid Transfer Text Protocol","HyperText Transport Procedure"], ans:0 },
+      { q:"Which CSS property changes text color?", opts:["font-color","text-color","color","foreground"], ans:2 },
+      { q:"What is the correct way to select an element by ID in CSS?", opts:[".myId","myId","#myId","*myId"], ans:2 },
+      { q:"Which HTML element is used for the largest heading?", opts:["<h6>","<heading>","<h1>","<head>"], ans:2 },
+      { q:"What does JSON stand for?", opts:["JavaScript Object Notation","Java Standard Object Notation","JavaScript Online Naming","Just Simple Object Notation"], ans:0 },
+      { q:"What is Electron.js used for?", opts:["Backend APIs","Building desktop apps with web tech","3D rendering","Database management"], ans:1 },
+    ];
+
+    let current = 0, score = 0, answered = false;
+
+    const progressFill   = document.getElementById('progressFill');
+    const progressLabel  = document.getElementById('progressLabel');
+    const questionText   = document.getElementById('questionText');
+    const optionsCont    = document.getElementById('optionsContainer');
+    const nextBtn        = document.getElementById('nextBtn');
+    const scoreDisplay   = document.getElementById('scoreDisplay');
+    const quizWrap       = document.getElementById('quizWrap');
+    const resultsScreen  = document.getElementById('resultsScreen');
+    const resultScore    = document.getElementById('resultScore');
+    const resultMsg      = document.getElementById('resultMsg');
+    const resultEmoji    = document.getElementById('resultEmoji');
+    const restartBtn     = document.getElementById('restartBtn');
+
+    function loadQuestion() {
+      answered = false;
+      nextBtn.disabled = true;
+      const q = QUESTIONS[current];
+      const pct = (current / QUESTIONS.length) * 100;
+      progressFill.style.width = pct + '%';
+      progressLabel.textContent = `Question ${current + 1} of ${QUESTIONS.length}`;
+      questionText.textContent = q.q;
+
+      optionsCont.innerHTML = '';
+      const labels = ['A','B','C','D'];
+      q.opts.forEach((opt, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.textContent = `${labels[i]}. ${opt}`;
+        btn.addEventListener('click', () => selectAnswer(i));
+        optionsCont.appendChild(btn);
+      });
+    }
+
+    function selectAnswer(idx) {
+      if (answered) return;
+      answered = true;
+      const q = QUESTIONS[current];
+      const btns = optionsCont.querySelectorAll('.option-btn');
+      btns.forEach(b => b.disabled = true);
+
+      if (idx === q.ans) {
+        btns[idx].classList.add('selected-correct');
+        score++;
+        scoreDisplay.textContent = score;
+      } else {
+        btns[idx].classList.add('selected-wrong');
+        btns[q.ans].classList.add('reveal-correct');
+      }
+      nextBtn.disabled = false;
+    }
+
+    nextBtn.addEventListener('click', () => {
+      current++;
+      if (current >= QUESTIONS.length) {
+        showResults();
+      } else {
+        loadQuestion();
+      }
+    });
+
+    function showResults() {
+      quizWrap.style.display = 'none';
+      resultsScreen.classList.add('show');
+      progressFill.style.width = '100%';
+
+      const pct = Math.round((score / QUESTIONS.length) * 100);
+      resultScore.textContent = `${score} / ${QUESTIONS.length}`;
+      if (pct >= 80) { resultEmoji.textContent='🏆'; resultMsg.textContent="Excellent! You really know your web tech."; }
+      else if (pct >= 50) { resultEmoji.textContent='👍'; resultMsg.textContent="Good job! A bit more practice and you'll ace it."; }
+      else { resultEmoji.textContent='📚'; resultMsg.textContent="Keep studying — you'll get there!"; }
+    }
+
+    restartBtn.addEventListener('click', () => {
+      current = 0; score = 0; answered = false;
+      scoreDisplay.textContent = 0;
+      quizWrap.style.display = 'flex';
+      resultsScreen.classList.remove('show');
+      loadQuestion();
+    });
+
+    // init
+    loadQuestion();
+    const d = document.getElementById('dims');
+    function upd(){ d.textContent=`${window.innerWidth} × ${window.innerHeight} px`; }
+    upd(); window.addEventListener('resize', upd);
+  </script>
+</body>
+</html>

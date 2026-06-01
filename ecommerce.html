@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>E-Commerce · UI Design Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root{
+      --bg-base:#0d1117;--bg-surface:#161b27;--bg-card:#1a2133;--bg-input:#121826;
+      --border:rgba(255,255,255,.07);--accent:#4a90e2;--accent-light:#6aa8f0;
+      --accent-dark:#2d6ebf;--accent-glow:rgba(74,144,226,.25);
+      --green:#3fb950;--red:#f85149;--gold:#d29922;
+      --text-primary:#e6edf3;--text-secondary:#8b949e;--text-muted:#566580;
+      --radius-sm:6px;--radius-md:12px;--radius-lg:18px;--radius-full:9999px;--ease:cubic-bezier(.4,0,.2,1);
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'DM Sans',sans-serif;background:var(--bg-base);color:var(--text-primary);min-height:100vh;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased}
+
+    /* NAV */
+    .navbar{display:flex;align-items:center;justify-content:space-between;height:50px;padding:0 2rem;background:var(--bg-surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+    .nav-brand{display:flex;align-items:center;gap:.5rem;font-family:'Syne',sans-serif;font-weight:700;font-size:.85rem;letter-spacing:.04em;text-transform:uppercase}
+    .brand-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent-glow)}
+    .nav-links{display:flex;list-style:none}
+    .nav-link{display:inline-block;padding:6px 14px;font-size:.8rem;font-weight:500;color:var(--text-secondary);text-decoration:none;border-radius:6px;transition:color 200ms,background 200ms}
+    .nav-link:hover{color:var(--text-primary);background:rgba(255,255,255,.05)}
+    .nav-link.active{color:var(--accent-light);background:rgba(74,144,226,.12)}
+    .cart-badge{display:inline-flex;align-items:center;gap:.3rem;padding:5px 12px;background:rgba(74,144,226,.15);border:1px solid rgba(74,144,226,.3);border-radius:var(--radius-full);font-size:.75rem;font-weight:600;color:var(--accent-light)}
+    .cart-count{background:var(--accent);color:#fff;border-radius:50%;width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700}
+
+    /* MAIN */
+    main{flex:1;padding:2rem;max-width:1000px;margin:0 auto;width:100%}
+
+    /* PAGE HEADER */
+    .shop-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem;animation:fadeUp .4s var(--ease) both}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+    .shop-title{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800}
+    .search-input{padding:8px 14px;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius-md);color:var(--text-primary);font-family:'DM Sans',sans-serif;font-size:.83rem;outline:none;width:220px;transition:border-color 200ms,box-shadow 200ms}
+    .search-input::placeholder{color:var(--text-muted)}
+    .search-input:focus{border-color:rgba(74,144,226,.5);box-shadow:0 0 0 2px var(--accent-glow)}
+
+    /* CATEGORY TABS */
+    .cat-tabs{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:1.25rem;animation:fadeUp .4s var(--ease) .08s both}
+    .cat-btn{padding:5px 16px;border-radius:var(--radius-full);font-size:.75rem;font-weight:600;border:1px solid var(--border);background:transparent;color:var(--text-muted);cursor:pointer;transition:all 180ms;letter-spacing:.04em}
+    .cat-btn:hover{color:var(--text-primary);background:rgba(255,255,255,.04)}
+    .cat-btn.active{background:rgba(74,144,226,.15);border-color:rgba(74,144,226,.4);color:var(--accent-light)}
+
+    /* PRODUCT GRID */
+    .product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:1rem;animation:fadeUp .4s var(--ease) .14s both}
+    .product-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;display:flex;flex-direction:column;transition:border-color 200ms,transform 200ms,box-shadow 200ms}
+    .product-card:hover{border-color:rgba(74,144,226,.3);transform:translateY(-3px);box-shadow:0 6px 24px rgba(74,144,226,.1)}
+    .product-img{width:100%;height:130px;display:flex;align-items:center;justify-content:center;font-size:3rem;background:var(--bg-surface);border-bottom:1px solid var(--border)}
+    .product-info{padding:.9rem;display:flex;flex-direction:column;gap:.4rem;flex:1}
+    .product-cat{font-size:.65rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted)}
+    .product-name{font-family:'Syne',sans-serif;font-size:.9rem;font-weight:700;line-height:1.3}
+    .product-stars{font-size:.75rem;color:var(--gold)}
+    .product-price{font-family:'Syne',sans-serif;font-size:1rem;font-weight:800;color:var(--accent-light)}
+    .product-original{font-size:.75rem;color:var(--text-muted);text-decoration:line-through;margin-left:.3rem;font-weight:400}
+    .price-row{display:flex;align-items:baseline;gap:.1rem}
+    .add-cart-btn{margin-top:.5rem;padding:8px;background:var(--accent);border:none;border-radius:var(--radius-md);color:#fff;font-family:'Syne',sans-serif;font-size:.78rem;font-weight:600;cursor:pointer;transition:background 200ms,transform 120ms;letter-spacing:.04em}
+    .add-cart-btn:hover{background:var(--accent-dark);transform:scale(1.02)}
+    .add-cart-btn:active{transform:scale(.98)}
+    .add-cart-btn.added{background:var(--green)!important}
+
+    /* CART PANEL (slide-in) */
+    .cart-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;opacity:0;pointer-events:none;transition:opacity 250ms}
+    .cart-overlay.open{opacity:1;pointer-events:all}
+    .cart-panel{position:fixed;right:0;top:0;bottom:0;width:320px;background:var(--bg-surface);border-left:1px solid var(--border);z-index:201;transform:translateX(100%);transition:transform 300ms var(--ease);display:flex;flex-direction:column;padding:1.5rem}
+    .cart-panel.open{transform:translateX(0)}
+    .cart-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
+    .cart-title{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700}
+    .close-cart{background:transparent;border:none;color:var(--text-muted);font-size:1.2rem;cursor:pointer;padding:2px 6px;border-radius:4px;transition:color 180ms,background 180ms}
+    .close-cart:hover{color:var(--text-primary);background:rgba(255,255,255,.06)}
+    .cart-items{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:.6rem}
+    .cart-item{display:flex;align-items:center;gap:.75rem;padding:.6rem;background:var(--bg-card);border-radius:var(--radius-md);border:1px solid var(--border)}
+    .cart-item-icon{font-size:1.3rem;width:36px;text-align:center}
+    .ci-name{flex:1;font-size:.8rem;font-weight:500}
+    .ci-price{font-size:.8rem;font-weight:700;color:var(--accent-light)}
+    .ci-del{background:transparent;border:none;color:var(--text-muted);cursor:pointer;font-size:.8rem;transition:color 180ms}
+    .ci-del:hover{color:var(--red)}
+    .cart-empty{text-align:center;padding:2rem;color:var(--text-muted);font-size:.85rem}
+    .cart-footer{border-top:1px solid var(--border);padding-top:1rem;margin-top:.5rem;display:flex;flex-direction:column;gap:.75rem}
+    .cart-total{display:flex;justify-content:space-between;font-family:'Syne',sans-serif;font-weight:700}
+    .checkout-btn{padding:11px;background:var(--accent);border:none;border-radius:var(--radius-md);color:#fff;font-family:'Syne',sans-serif;font-size:.875rem;font-weight:600;cursor:pointer;transition:background 200ms}
+    .checkout-btn:hover{background:var(--accent-dark)}
+
+    footer{padding:.5rem 2rem;border-top:1px solid var(--border);text-align:center;font-size:.72rem;color:var(--text-muted)}
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-brand"><span class="brand-dot"></span><span>UI Design Lab</span></div>
+    <ul class="nav-links">
+      <li><a href="index.html"     class="nav-link">Home</a></li>
+      <li><a href="portfolio.html" class="nav-link">Portfolio</a></li>
+      <li><a href="todo.html"      class="nav-link">To-Do</a></li>
+      <li><a href="quiz.html"      class="nav-link">Quiz</a></li>
+      <li><a href="ecommerce.html" class="nav-link active">E-Commerce</a></li>
+      <li><a href="settings.html"  class="nav-link">Settings</a></li>
+    </ul>
+    <button class="cart-badge" id="cartToggle" style="cursor:pointer;border:none;font-family:inherit">
+      🛒 Cart <span class="cart-count" id="cartCount">0</span>
+    </button>
+  </nav>
+
+  <!-- Cart overlay + panel -->
+  <div class="cart-overlay" id="cartOverlay"></div>
+  <aside class="cart-panel" id="cartPanel">
+    <div class="cart-head">
+      <h2 class="cart-title">Your Cart</h2>
+      <button class="close-cart" id="closeCart">✕</button>
+    </div>
+    <div class="cart-items" id="cartItems"><p class="cart-empty">Your cart is empty.</p></div>
+    <div class="cart-footer">
+      <div class="cart-total"><span>Total</span><span id="cartTotal">₹0</span></div>
+      <button class="checkout-btn" id="checkoutBtn">Checkout →</button>
+    </div>
+  </aside>
+
+  <main>
+    <div class="shop-header">
+      <h1 class="shop-title">🛍️ Shop</h1>
+      <input type="search" id="searchInput" class="search-input" placeholder="Search products…" />
+    </div>
+
+    <div class="cat-tabs">
+      <button class="cat-btn active" data-cat="all">All</button>
+      <button class="cat-btn" data-cat="electronics">Electronics</button>
+      <button class="cat-btn" data-cat="books">Books</button>
+      <button class="cat-btn" data-cat="tools">Dev Tools</button>
+      <button class="cat-btn" data-cat="gear">Gear</button>
+    </div>
+
+    <div class="product-grid" id="productGrid"></div>
+  </main>
+
+  <footer>E-Commerce Window · <span id="dims"></span> · ecommerce.html</footer>
+
+  <script>
+    const PRODUCTS = [
+      {id:1,name:"Raspberry Pi 5",cat:"electronics",icon:"🍓",price:4500,original:5200,stars:5},
+      {id:2,name:"Arduino UNO Kit",cat:"electronics",icon:"⚡",price:850,original:1200,stars:4},
+      {id:3,name:"ESP32 DevKit",cat:"electronics",icon:"📡",price:399,original:599,stars:5},
+      {id:4,name:"Clean Code (Book)",cat:"books",icon:"📗",price:549,original:799,stars:5},
+      {id:5,name:"JavaScript: The Good Parts",cat:"books",icon:"📙",price:399,original:599,stars:4},
+      {id:6,name:"The Pragmatic Programmer",cat:"books",icon:"📘",price:649,original:899,stars:5},
+      {id:7,name:"VS Code Pro License",cat:"tools",icon:"💻",price:0,original:0,stars:5,free:true},
+      {id:8,name:"Figma Professional",cat:"tools",icon:"🎨",price:1299,original:1999,stars:4},
+      {id:9,name:"Mechanical Keyboard",cat:"gear",icon:"⌨️",price:3299,original:4500,stars:4},
+      {id:10,name:"USB-C Hub 7-in-1",cat:"gear",icon:"🔌",price:1199,original:1699,stars:4},
+      {id:11,name:"DHT11 Sensor Pack",cat:"electronics",icon:"🌡️",price:149,original:249,stars:5},
+      {id:12,name:"Soldering Kit",cat:"tools",icon:"🔧",price:899,original:1299,stars:4},
+    ];
+
+    let cart = [];
+    let activeCat = 'all';
+    let searchQ = '';
+
+    const productGrid = document.getElementById('productGrid');
+    const cartCount   = document.getElementById('cartCount');
+    const cartItems   = document.getElementById('cartItems');
+    const cartTotal   = document.getElementById('cartTotal');
+    const cartPanel   = document.getElementById('cartPanel');
+    const cartOverlay = document.getElementById('cartOverlay');
+
+    function stars(n){ return '★'.repeat(n)+'☆'.repeat(5-n); }
+
+    function renderProducts() {
+      let list = PRODUCTS.filter(p => {
+        const catOk = activeCat==='all' || p.cat===activeCat;
+        const srchOk = !searchQ || p.name.toLowerCase().includes(searchQ.toLowerCase());
+        return catOk && srchOk;
+      });
+      productGrid.innerHTML = '';
+      list.forEach(p => {
+        const card = document.createElement('div');
+        card.className = 'product-card';
+        const alreadyIn = cart.find(c=>c.id===p.id);
+        card.innerHTML = `
+          <div class="product-img">${p.icon}</div>
+          <div class="product-info">
+            <span class="product-cat">${p.cat}</span>
+            <span class="product-name">${p.name}</span>
+            <span class="product-stars">${stars(p.stars)}</span>
+            <div class="price-row">
+              <span class="product-price">${p.free?'Free':'₹'+p.price.toLocaleString()}</span>
+              ${p.original&&!p.free?`<span class="product-original">₹${p.original.toLocaleString()}</span>`:''}
+            </div>
+            <button class="add-cart-btn ${alreadyIn?'added':''}" data-id="${p.id}">
+              ${alreadyIn?'✓ Added':'Add to Cart'}
+            </button>
+          </div>`;
+        productGrid.appendChild(card);
+      });
+    }
+
+    productGrid.addEventListener('click', e => {
+      const btn = e.target.closest('.add-cart-btn');
+      if (!btn) return;
+      const id = Number(btn.dataset.id);
+      const p  = PRODUCTS.find(x=>x.id===id);
+      if (!cart.find(c=>c.id===id)) {
+        cart.push({...p, qty:1});
+      }
+      updateCart(); renderProducts();
+      btn.textContent='✓ Added'; btn.classList.add('added');
+    });
+
+    function updateCart() {
+      const total = cart.reduce((s,i)=>s+i.price,0);
+      cartCount.textContent = cart.length;
+      cartTotal.textContent = '₹' + total.toLocaleString();
+      if (!cart.length) {
+        cartItems.innerHTML = '<p class="cart-empty">Your cart is empty.</p>';
+        return;
+      }
+      cartItems.innerHTML = '';
+      cart.forEach(item => {
+        const el = document.createElement('div');
+        el.className = 'cart-item';
+        el.innerHTML = `<span class="cart-item-icon">${item.icon}</span>
+          <span class="ci-name">${item.name}</span>
+          <span class="ci-price">${item.free?'Free':'₹'+item.price.toLocaleString()}</span>
+          <button class="ci-del" data-id="${item.id}" title="Remove">✕</button>`;
+        cartItems.appendChild(el);
+      });
+    }
+
+    cartItems.addEventListener('click', e => {
+      const btn = e.target.closest('.ci-del');
+      if (!btn) return;
+      cart = cart.filter(c=>c.id!==Number(btn.dataset.id));
+      updateCart(); renderProducts();
+    });
+
+    // Cart open/close
+    function openCart(){ cartPanel.classList.add('open'); cartOverlay.classList.add('open'); }
+    function closeCartFn(){ cartPanel.classList.remove('open'); cartOverlay.classList.remove('open'); }
+    document.getElementById('cartToggle').addEventListener('click', openCart);
+    document.getElementById('closeCart').addEventListener('click', closeCartFn);
+    cartOverlay.addEventListener('click', closeCartFn);
+
+    document.getElementById('checkoutBtn').addEventListener('click', () => {
+      if(!cart.length){ alert('Your cart is empty!'); return; }
+      alert(`✅ Order placed!\n${cart.length} item(s) · ₹${cart.reduce((s,i)=>s+i.price,0).toLocaleString()}\nThank you!`);
+      cart=[]; updateCart(); renderProducts(); closeCartFn();
+    });
+
+    // Category tabs
+    document.querySelectorAll('.cat-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('active'));
+        btn.classList.add('active');
+        activeCat = btn.dataset.cat;
+        renderProducts();
+      });
+    });
+
+    // Search
+    document.getElementById('searchInput').addEventListener('input', e => {
+      searchQ = e.target.value; renderProducts();
+    });
+
+    renderProducts(); updateCart();
+    const d=document.getElementById('dims');
+    function upd(){d.textContent=`${window.innerWidth} × ${window.innerHeight} px`;}
+    upd(); window.addEventListener('resize',upd);
+  </script>
+</body>
+</html>
